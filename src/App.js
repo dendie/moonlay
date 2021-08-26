@@ -1,23 +1,41 @@
-import logo from './logo.svg';
 import './App.css';
+import LoginForm from './LoginForm';
+import CompanyRegisterForm from './CompanyRegisterForm';
+import CompanyTable from './CompanyTable';
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import { Suspense, useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 
 function App() {
+  
+  const [cookie, setCookie] = useState('');
+  
+  useEffect(() => {
+    setCookie(Cookies.get('token'));
+  }, []);
+  // const cookie = getCookie('token');
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>      
+        <Suspense fallback=''>
+          <Switch>
+            <Route
+              path='/company'
+              render={({ match : { url } }) => {
+                if (cookie) {
+                  return <>
+                    <Route exact path={`${url}`} component={CompanyTable} />
+                    <Route exact path={`${url}/create`} component={CompanyRegisterForm} />
+                  </>
+                } else {
+                  return <Route exact path={`${url}`} component={LoginForm} />
+                }
+              }}
+            />
+          </Switch>
+        </Suspense>
+      </BrowserRouter>
     </div>
   );
 }
